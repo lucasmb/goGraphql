@@ -1,0 +1,2 @@
+# goGraphql
+dockerized gqlgen app
