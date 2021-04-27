@@ -1,0 +1,65 @@
+version: '3.7'
+
+services:
+  app:
+    container_name: gographql
+    build:
+      context: .
+      target: build
+      dockerfile: Dockerfile
+      args:
+        APP_ENV: ${APP_ENV}
+        GO_VERSION: ${GO_VERSION}
+    volumes:
+      - .:/app
+    env_file:
+      - .env # The name of your environment file (the one at the repository root)
+    ports:
+      - 3001:3001
+    depends_on:
+      - postgresdb
+    tty: true
+    networks:
+        - gonetwork
+
+  postgresdb:
+    container_name: gopostgres
+    image: postgres:13.2
+    env_file:
+      - .env # The name of your environment file (the one at the repository root)
+    environment:
+      - POSTGRES_DB= ${POSTGRES_DB}
+      - POSTGRES_USER= ${POSTGRES_USER}
+      - POSTGRES_PASSWORD= ${POSTGRES_PASSWORD}
+    ports:
+      - '5432:5432'
+    volumes: 
+      - api-db:/var/lib/postgresql/data
+      # copy the sql script to create tables
+      - ${POSTGRES_DUMP_PATH}:/docker-entrypoint-initdb.d/create_tables.sql
+    networks:
+      - gonetwork
+    
+##db:
+##  container_name: 360-api-db
+##  image: mysql:8.0.23
+##  command: --default-authentication-plugin=mysql_native_password
+##  volumes:
+##    - api-db:/var/lib/mysql
+##    - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+##    - ${MYSQL_DUMP_PATH}:/docker-entrypoint-initdb.d/init.sql
+##  environment:
+##    MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+##    MYSQL_DATABASE: ${MYSQL_DATABASE}
+##    MYSQL_USER: ${MYSQL_USER}
+##    MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+##  ports:
+##    - 3307:3306
+##  tty: true
+
+volumes:
+  api-db:
+
+networks:
+  gonetwork:
+    driver: bridge

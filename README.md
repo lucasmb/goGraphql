@@ -1,2 +1,2 @@
 # goGraphql
-dockerized gqlgen app
+dockerized gqlgen app with echo Framework and hot reload provided by Air 
